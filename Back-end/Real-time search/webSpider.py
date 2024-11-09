@@ -408,8 +408,8 @@ def getHTML(url):
             dic['price'] = [price]
             dic['title'] = [title]
             dic['detailUrl'] = [detailUrl]
-            tmpDf = pandas.DataFrame(data=dic)
-            df = pandas.concat([tmpDf, df], axis=0)
+            #tmpDf = pandas.DataFrame(data=dic)
+            #df = pandas.concat([tmpDf, df], axis=0)
 
             print('amazon：', dic)
             print(imgPath)
@@ -455,8 +455,8 @@ def getHTML(url):
             dic['price'] = [price]
             dic['title'] = [title]
             dic['detailUrl'] = [detailUrl]
-            tmpDf = pandas.DataFrame(data=dic)
-            df = pandas.concat([df, tmpDf], axis=0)
+            #tmpDf = pandas.DataFrame(data=dic)
+            #df = pandas.concat([df, tmpDf], axis=0)
             print('bestbuy：', dic, d)
     elif 'alibaba' in url:
         divs = page.eles('xpath://div[@data-content="abox-ProductNormalList"]/div')
@@ -494,14 +494,14 @@ def getHTML(url):
             dic['price'] = [price]
             dic['title'] = [title]
             dic['detailUrl'] = [detailUrl]
-            tmpDf = pandas.DataFrame(data=dic)
-            df = pandas.concat([df, tmpDf], axis=0)
+            #tmpDf = pandas.DataFrame(data=dic)
+            #df = pandas.concat([df, tmpDf], axis=0)
             print('alibaba：', dic)
-    starDf = df.sort_values(by='star', ascending=False, inplace=False).head(5)
-    priceDf = df.sort_values(by='price', ascending=False, inplace=False).head(5)
-    print('starDf', starDf)
-    print('priceDf', priceDf)
-    return {'starDf': starDf, 'priceDf': priceDf}
+    #starDf = df.sort_values(by='star', ascending=False, inplace=False).head(5)
+    #priceDf = df.sort_values(by='price', ascending=False, inplace=False).head(5)
+    #print('starDf', starDf)
+    #print('priceDf', priceDf)
+    #return {'starDf': starDf, 'priceDf': priceDf}
 
 
 def myRequests(imgUrl):
@@ -515,6 +515,6 @@ def myRequests(imgUrl):
 
 
 if __name__ == '__main__':
-    getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
+    #getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
     #getHTML('https://www.alibaba.com/trade/search?SearchText=iphone')
-    # getHTML('https://www.bestbuy.ca/en-ca/search?search=iphone')
+    getHTML('https://www.bestbuy.ca/en-ca/search?search=iphone')
