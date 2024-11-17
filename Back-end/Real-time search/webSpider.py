@@ -4,6 +4,8 @@
 FILE_NAME: webSpider ;
 DATE: 2024/9/27 ;
 """
+from random import random
+
 '''
 import os
 import re
@@ -337,10 +339,11 @@ import os
 import re
 import sys
 import time
-
+from time import sleep
 import pandas
 import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
+import random
 
 currentDir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
@@ -381,20 +384,20 @@ def getHTML(url):
                 continue
             try:
                 star = d.ele('xpath:.//span[contains(@aria-label,"5 stars")]').attr('aria-label')
-                #star = d.ele('xpath:.//span[contains(@aria-label,"最多 5 颗星")]').attr('aria-label')
+                # star = d.ele('xpath:.//span[contains(@aria-label,"最多 5 颗星")]').attr('aria-label')
                 star = float(re.findall(r'^\d\.\d(?= out of 5 stars)', star)[0])
 
             except:
                 star = 0
             try:
-                #price = d.ele('xpath:.//span[@class="a-price"]/span[1]').text
+                # price = d.ele('xpath:.//span[@class="a-price"]/span[1]').text
                 price = d.ele('xpath:.//span[@class="a-price"]/span[1]').text
                 price = float(price.replace('$', ''))
             except:
                 price = 0
 
             try:
-                #commentNum = d.ele('xpath:.//span[contains(@aria-label, " 评级")]').attr('aria-label')
+                # commentNum = d.ele('xpath:.//span[contains(@aria-label, " 评级")]').attr('aria-label')
                 # commentNum = d.ele('xpath:.//span[contains(@aria-label, "rating")]').attr('aria-label')
                 commentNum = d.ele('xpath:.//span[contains(@aria-label,"ratings")]').attr('aria-label')
                 commentNum = commentNum[:-7]
@@ -408,8 +411,8 @@ def getHTML(url):
             dic['price'] = [price]
             dic['title'] = [title]
             dic['detailUrl'] = [detailUrl]
-            #tmpDf = pandas.DataFrame(data=dic)
-            #df = pandas.concat([tmpDf, df], axis=0)
+            # tmpDf = pandas.DataFrame(data=dic)
+            # df = pandas.concat([tmpDf, df], axis=0)
 
             print('amazon：', dic)
             print(imgPath)
@@ -425,6 +428,7 @@ def getHTML(url):
         bestbuyDir = os.path.join(currentDir, 'bestbuy')
         if not os.path.exists(bestbuyDir):
             os.mkdir(bestbuyDir)
+        # for d in range(6):
         for d in range(len(divs)):
             page.actions.move_to(ele_or_loc=divs[d])
             time.sleep(1)
@@ -438,7 +442,11 @@ def getHTML(url):
             if imgRes:
                 with open(imgPath, 'wb') as f:
                     f.write(imgRes.content)
-            detailUrl = divs[d].ele('xpath:.//a').attr('href')
+            try:
+                detailUrl = divs[d].ele('xpath:.//a').attr('href')
+            except:
+                continue
+
             try:
                 star = divs[d].ele('xpath:.//meta[@itemprop="ratingValue"]').attr('content')
                 star = float(star)
@@ -455,15 +463,16 @@ def getHTML(url):
             dic['price'] = [price]
             dic['title'] = [title]
             dic['detailUrl'] = [detailUrl]
-            #tmpDf = pandas.DataFrame(data=dic)
-            #df = pandas.concat([df, tmpDf], axis=0)
+            # tmpDf = pandas.DataFrame(data=dic)
+            # df = pandas.concat([df, tmpDf], axis=0)
             print('bestbuy：', dic, d)
     elif 'alibaba' in url:
         divs = page.eles('xpath://div[@data-content="abox-ProductNormalList"]/div')
         alibabaDir = os.path.join(currentDir, 'alibaba')
         if not os.path.exists(alibabaDir):
             os.mkdir(alibabaDir)
-        for d in range(len(divs)):
+        for d in range(8):
+        #for d in range(len(divs)):
 
             title = divs[d].ele('xpath:.//h2//span').text
             price = divs[d].ele('xpath:.//div[@class="search-card-e-price-main"]').text
@@ -476,7 +485,31 @@ def getHTML(url):
             if imgRes:
                 with open(imgPath, 'wb') as f:
                     f.write(imgRes.content)
-            detailUrl = divs[d].ele('xpath:.//h2/preceding-sibling::a').attr('href')
+            try:
+                '''
+                link_element = divs[d].ele('xpath:.//h2/preceding-sibling::a')
+                if link_element:
+                    detailUrl=link_element.attr('href')
+                    if detailUrl:
+                        print(detailUrl)
+                    else:
+                        detailUrl = None
+                        #return detailUrl
+
+                else:
+                    detailUrl = None
+                '''
+
+                # sleep(5)
+                # sleep(random.randint(1,3))
+                detailUrl = divs[d].ele('xpath:.//h2/preceding-sibling::a').attr('href')
+                # detailUrl = divs[d].ele('xpath:.//a').attr('href')
+                # detailUrl = divs[d].ele('xpath://a[contains(@class='')]').attr('href')
+
+            except:
+                # detailUrl = None
+                #raise
+                continue
 
             try:
                 star = divs[d].ele('xpath:.//span[@class="search-card-e-review"]/strong[1]').text
@@ -494,19 +527,19 @@ def getHTML(url):
             dic['price'] = [price]
             dic['title'] = [title]
             dic['detailUrl'] = [detailUrl]
-            #tmpDf = pandas.DataFrame(data=dic)
-            #df = pandas.concat([df, tmpDf], axis=0)
+            # tmpDf = pandas.DataFrame(data=dic)
+            # df = pandas.concat([df, tmpDf], axis=0)
             print('alibaba：', dic)
-    #starDf = df.sort_values(by='star', ascending=False, inplace=False).head(5)
-    #priceDf = df.sort_values(by='price', ascending=False, inplace=False).head(5)
-    #print('starDf', starDf)
-    #print('priceDf', priceDf)
-    #return {'starDf': starDf, 'priceDf': priceDf}
+    # starDf = df.sort_values(by='star', ascending=False, inplace=False).head(5)
+    # priceDf = df.sort_values(by='price', ascending=False, inplace=False).head(5)
+    # print('starDf', starDf)
+    # print('priceDf', priceDf)
+    # return {'starDf': starDf, 'priceDf': priceDf}
 
 
 def myRequests(imgUrl):
     try:
-        #imgRes = requests.get(url=imgUrl, proxies={'https': '127.0.0.1:7890', 'http': '127.0.0.1:7890'})
+        # imgRes = requests.get(url=imgUrl, proxies={'https': '127.0.0.1:7890', 'http': '127.0.0.1:7890'})
         imgRes = requests.get(url=imgUrl, proxies={})
 
     except:
@@ -515,6 +548,8 @@ def myRequests(imgUrl):
 
 
 if __name__ == '__main__':
-    #getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
-    #getHTML('https://www.alibaba.com/trade/search?SearchText=iphone')
-    getHTML('https://www.bestbuy.ca/en-ca/search?search=iphone')
+    # getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
+    # getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
+    # getHTML('https://www.bestbuy.ca/en-ca/search?search=tablet')
+    getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
+
