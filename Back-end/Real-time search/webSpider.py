@@ -471,14 +471,25 @@ def getHTML(url):
         alibabaDir = os.path.join(currentDir, 'alibaba')
         if not os.path.exists(alibabaDir):
             os.mkdir(alibabaDir)
-        for d in range(8):
-        #for d in range(len(divs)):
+        #for d in range(8):
+        for d in range(len(divs)):
 
-            title = divs[d].ele('xpath:.//h2//span').text
-            price = divs[d].ele('xpath:.//div[@class="search-card-e-price-main"]').text
+
+            try:
+                title = divs[d].ele('xpath:.//h2//span').text
+            except:
+                continue
+            try:
+                price = divs[d].ele('xpath:.//div[@class="search-card-e-price-main"]').text
+            except:
+                continue
             price = re.findall('(?<=\$)\d+.\d{2}', price.replace(',', ''))[0]
             price = float(price)
-            imgUrl = divs[d].ele('xpath:.//img[contains(@class,"search-card-e-slider")]').attr('src')
+
+            try:
+                imgUrl = divs[d].ele('xpath:.//img[contains(@class,"search-card-e-slider")]').attr('src')
+            except:
+                continue
             imgName = re.sub(rstr, "_", title)
             imgPath = os.path.join(alibabaDir, imgName + '.jpg')
             imgRes = myRequests(imgUrl)
@@ -549,7 +560,7 @@ def myRequests(imgUrl):
 
 if __name__ == '__main__':
     # getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
-    # getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
-    # getHTML('https://www.bestbuy.ca/en-ca/search?search=tablet')
     getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
+    # getHTML('https://www.bestbuy.ca/en-ca/search?search=tablet')
+    #getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
 
