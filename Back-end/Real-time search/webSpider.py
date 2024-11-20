@@ -42,7 +42,7 @@ def getHTML(url):
                 price = d.ele('xpath:.//span[@class="a-price"]/span[1]').text
             except:
                 price = ''
-                
+
             try:
                 commentNum = d.ele('xpath:.//span[contains(@aria-label, " level")]').attr('aria-label')
             except:
@@ -65,7 +65,7 @@ def getHTML(url):
                 commentNum = d.ele('xpath:.//span[@data-testid="product-reviews"]').attr('data-value')
             except:
                 commentNum = ''
-    
+
             try:
                 star = d.ele('xpath:.//span[@data-testid="product-ratings"]').attr('data-value')
             except:
@@ -77,25 +77,25 @@ def getHTML(url):
             print('沃尔玛的数据：', dic)
     elif 'target.com' in url:
         divs = page.eles('xpath://section/div/div')
-        
+
         for d in divs:
             dic = {}
             try:
                 star = d.ele('xpath:.//span[@data-test="ratings"]/div[@data-ref="rating-mask"]').attr('style')
-                
+
                 if star:
                     star = re.findall(r'\d+', star)[0]*0.01*5
-                    
+
             except:
                 star = ''
-                
+
             try:
                 price = d.ele('xpath:.//span[@data-test="current-price"]').text
                 if price:
                     price = re.findall(r'\d+\.\d{1,2}', price)[0]
             except:
                 price = ''
-            
+
             try:
                 commentNum = d.ele('xpath:.//span[@data-test="rating-count"]').text.replace(' reviews', '')
             except:
@@ -121,7 +121,7 @@ def woerma(url):
     page.ele('xpath://input[@name="q"]').input('iphone')
     time.sleep(2)
     page.ele('xpath://button[@aria-label="Search icon"]').click(by_js = True)
-    
+
 if __name__ == '__main__':
     getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
     # time.sleep(10)
@@ -339,11 +339,9 @@ import os
 import re
 import sys
 import time
-from time import sleep
 import pandas
 import requests
 from DrissionPage import ChromiumPage, ChromiumOptions
-import random
 
 currentDir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
@@ -361,9 +359,8 @@ def getHTML(url):
     page.scroll.to_bottom()
     rstr = r"[\/\\\:\*\?\"\<\>\|]"  # '/ \ : * ? " < > |'
 
-    df = pandas.DataFrame()
     if 'amazon' in url:
-        store='Amazon'
+        store = 'Amazon'
         divs = page.eles('xpath://div[@data-component-type="s-search-result"]')
         amazonDir = os.path.join(currentDir, 'amazon')
         print('amazon', amazonDir)
@@ -379,7 +376,7 @@ def getHTML(url):
                 if imgRes:
                     with open(imgPath, 'wb') as f:
                         f.write(imgRes.content)
-                detailUrl = d.ele('xpath:.//h2//a').attr('href')
+                detail_url = d.ele('xpath:.//h2//a').attr('href')
 
             except:
                 continue
@@ -406,7 +403,8 @@ def getHTML(url):
                 # commentNum = d.ele('xpath:.//span[@id="acrCustomerReviewText"]').text()
             except:
                 commentNum = 0
-            dic={'star':star,'comment_num':commentNum,'price':price,'store':store,'title':title,'detail_url':detail_url}
+            dic = {'star': star, 'comment_num': commentNum, 'price': price, 'store': store, 'title': title,
+                   'detail_url': detail_url}
             # tmpDf = pandas.DataFrame(data=dic)
             # df = pandas.concat([tmpDf, df], axis=0)
 
@@ -415,7 +413,7 @@ def getHTML(url):
 
 
     elif 'bestbuy' in url:
-        store='Bestbuy'
+        store = 'Bestbuy'
         time.sleep(2)
         page.ele("xpath://button/span[text()='Show more']").click(by_js=True)
         time.sleep(2)
@@ -432,13 +430,13 @@ def getHTML(url):
             try:
                 title = divs[d].ele('xpath:.//div[@itemprop="name"]').text
             except:
-                title=''
+                title = ''
             try:
                 price = divs[d].ele('xpath:.//div[contains(@class, "style-module_price")]').text
                 price = float(price.replace('$', '').replace(',', ''))
             except:
-                price=0
-            
+                price = 0
+
             try:
                 imgUrl = divs[d].ele('xpath:.//img').attr('src')
                 imgName = re.sub(rstr, "_", title)
@@ -447,10 +445,10 @@ def getHTML(url):
                 with open(imgPath, 'wb') as f:
                     f.write(imgRes.content)
             except:
-                imgUrl=''
-                imgName=''
+                imgUrl = ''
+                imgName = ''
             try:
-                detailUrl = divs[d].ele('xpath:.//a').attr('href')
+                detail_url = divs[d].ele('xpath:.//a').attr('href')
             except:
                 continue
             try:
@@ -463,17 +461,18 @@ def getHTML(url):
                 commentNum = float(commentNum)
             except:
                 commentNum = 0
-            dic={'star':star,'comment_num':commentNum,'price':price,'store':store,'title':title,'detail_url':detail_url}
+            dic = {'star': star, 'comment_num': commentNum, 'price': price, 'store': store, 'title': title,
+                   'detail_url': detail_url}
             # tmpDf = pandas.DataFrame(data=dic)
             # df = pandas.concat([df, tmpDf], axis=0)
             print('bestbuy：', dic, d)
     elif 'alibaba' in url:
-        store='Alibaba'
+        store = 'Alibaba'
         divs = page.eles('xpath://div[@data-content="abox-ProductNormalList"]/div')
         alibabaDir = os.path.join(currentDir, 'alibaba')
         if not os.path.exists(alibabaDir):
             os.mkdir(alibabaDir)
-        #for d in range(8):
+        # for d in range(8):
         for d in range(len(divs)):
 
             try:
@@ -495,8 +494,8 @@ def getHTML(url):
                 with open(imgPath, 'wb') as f:
                     f.write(imgRes.content)
             except:
-                imgUrl=''
-                imgName=''
+                imgUrl = ''
+                imgName = ''
             try:
                 '''
                 link_element = divs[d].ele('xpath:.//h2/preceding-sibling::a')
@@ -514,13 +513,13 @@ def getHTML(url):
 
                 # sleep(5)
                 # sleep(random.randint(1,3))
-                detailUrl = divs[d].ele('xpath:.//h2/preceding-sibling::a').attr('href')
+                detail_url = divs[d].ele('xpath:.//h2/preceding-sibling::a').attr('href')
                 # detailUrl = divs[d].ele('xpath:.//a').attr('href')
                 # detailUrl = divs[d].ele('xpath://a[contains(@class='')]').attr('href')
 
             except:
                 # detailUrl = None
-                #raise
+                # raise
                 continue
 
             try:
@@ -533,7 +532,8 @@ def getHTML(url):
                 commentNum = float(commentNum)
             except:
                 commentNum = 0
-            dic={'star':star,'comment_num':commentNum,'price':price,'store':store,'title':title,'detail_url':detail_url}
+            dic = {'star': star, 'comment_num': commentNum, 'price': price, 'store': store, 'title': title,
+                   'detail_url': detail_url}
             # tmpDf = pandas.DataFrame(data=dic)
             # df = pandas.concat([df, tmpDf], axis=0)
             print('alibaba：', dic)
@@ -558,5 +558,4 @@ if __name__ == '__main__':
     # getHTML('https://www.amazon.com/-/zh/s?k=macbook&page=2&qid=1727679681&ref=sr_pg_2')
     getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
     # getHTML('https://www.bestbuy.ca/en-ca/search?search=tablet')
-    #getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
-
+    # getHTML('https://www.alibaba.com/trade/search?SearchText=tablet')
