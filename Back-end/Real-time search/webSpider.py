@@ -363,6 +363,7 @@ def getHTML(url):
 
     df = pandas.DataFrame()
     if 'amazon' in url:
+        store='Amazon'
         divs = page.eles('xpath://div[@data-component-type="s-search-result"]')
         amazonDir = os.path.join(currentDir, 'amazon')
         print('amazon', amazonDir)
@@ -405,12 +406,7 @@ def getHTML(url):
                 # commentNum = d.ele('xpath:.//span[@id="acrCustomerReviewText"]').text()
             except:
                 commentNum = 0
-            dic = {}
-            dic['star'] = [star]
-            dic['commentNum'] = [commentNum]
-            dic['price'] = [price]
-            dic['title'] = [title]
-            dic['detailUrl'] = [detailUrl]
+            dic={'star':star,'comment_num':commentNum,'price':price,'store':store,'title':title,'detail_url':detail_url}
             # tmpDf = pandas.DataFrame(data=dic)
             # df = pandas.concat([tmpDf, df], axis=0)
 
@@ -419,6 +415,7 @@ def getHTML(url):
 
 
     elif 'bestbuy' in url:
+        store='Bestbuy'
         time.sleep(2)
         page.ele("xpath://button/span[text()='Show more']").click(by_js=True)
         time.sleep(2)
@@ -432,21 +429,30 @@ def getHTML(url):
         for d in range(len(divs)):
             page.actions.move_to(ele_or_loc=divs[d])
             time.sleep(1)
-            title = divs[d].ele('xpath:.//div[@itemprop="name"]').text
-            price = divs[d].ele('xpath:.//div[contains(@class, "style-module_price")]').text
-            price = float(price.replace('$', '').replace(',', ''))
-            imgUrl = divs[d].ele('xpath:.//img').attr('src')
-            imgName = re.sub(rstr, "_", title)
-            imgPath = os.path.join(bestbuyDir, imgName + '.jpg')
-            imgRes = myRequests(imgUrl)
-            if imgRes:
+            try:
+                title = divs[d].ele('xpath:.//div[@itemprop="name"]').text
+            except:
+                title=''
+            try:
+                price = divs[d].ele('xpath:.//div[contains(@class, "style-module_price")]').text
+                price = float(price.replace('$', '').replace(',', ''))
+            except:
+                price=0
+            
+            try:
+                imgUrl = divs[d].ele('xpath:.//img').attr('src')
+                imgName = re.sub(rstr, "_", title)
+                imgPath = os.path.join(bestbuyDir, imgName + '.jpg')
+                imgRes = myRequests(imgUrl)
                 with open(imgPath, 'wb') as f:
                     f.write(imgRes.content)
+            except:
+                imgUrl=''
+                imgName=''
             try:
                 detailUrl = divs[d].ele('xpath:.//a').attr('href')
             except:
                 continue
-
             try:
                 star = divs[d].ele('xpath:.//meta[@itemprop="ratingValue"]').attr('content')
                 star = float(star)
@@ -457,23 +463,18 @@ def getHTML(url):
                 commentNum = float(commentNum)
             except:
                 commentNum = 0
-            dic = {}
-            dic['star'] = [star]
-            dic['commentNum'] = [commentNum]
-            dic['price'] = [price]
-            dic['title'] = [title]
-            dic['detailUrl'] = [detailUrl]
+            dic={'star':star,'comment_num':commentNum,'price':price,'store':store,'title':title,'detail_url':detail_url}
             # tmpDf = pandas.DataFrame(data=dic)
             # df = pandas.concat([df, tmpDf], axis=0)
             print('bestbuy：', dic, d)
     elif 'alibaba' in url:
+        store='Alibaba'
         divs = page.eles('xpath://div[@data-content="abox-ProductNormalList"]/div')
         alibabaDir = os.path.join(currentDir, 'alibaba')
         if not os.path.exists(alibabaDir):
             os.mkdir(alibabaDir)
         #for d in range(8):
         for d in range(len(divs)):
-
 
             try:
                 title = divs[d].ele('xpath:.//h2//span').text
@@ -488,14 +489,14 @@ def getHTML(url):
 
             try:
                 imgUrl = divs[d].ele('xpath:.//img[contains(@class,"search-card-e-slider")]').attr('src')
-            except:
-                continue
-            imgName = re.sub(rstr, "_", title)
-            imgPath = os.path.join(alibabaDir, imgName + '.jpg')
-            imgRes = myRequests(imgUrl)
-            if imgRes:
+                imgName = re.sub(rstr, "_", title)
+                imgPath = os.path.join(alibabaDir, imgName + '.jpg')
+                imgRes = myRequests(imgUrl)
                 with open(imgPath, 'wb') as f:
                     f.write(imgRes.content)
+            except:
+                imgUrl=''
+                imgName=''
             try:
                 '''
                 link_element = divs[d].ele('xpath:.//h2/preceding-sibling::a')
@@ -532,12 +533,7 @@ def getHTML(url):
                 commentNum = float(commentNum)
             except:
                 commentNum = 0
-            dic = {}
-            dic['star'] = [star]
-            dic['commentNum'] = [commentNum]
-            dic['price'] = [price]
-            dic['title'] = [title]
-            dic['detailUrl'] = [detailUrl]
+            dic={'star':star,'comment_num':commentNum,'price':price,'store':store,'title':title,'detail_url':detail_url}
             # tmpDf = pandas.DataFrame(data=dic)
             # df = pandas.concat([df, tmpDf], axis=0)
             print('alibaba：', dic)
