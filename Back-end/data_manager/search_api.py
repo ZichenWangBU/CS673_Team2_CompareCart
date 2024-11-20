@@ -12,7 +12,7 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # API Endpoint to query Firestore dynamically
-@app.route('/search_items', methods=['GET'])
+@app.route('/api/items/search', methods=['GET'])
 def search_items():
     try:
         # Get parameters from the request
@@ -48,7 +48,7 @@ def search_items():
     except:
         return jsonify({'error': 'No result found'})
 
-@app.route('/search_items', methods=['GET'])
+@app.route('/api/products/{productId}', methods=['GET'])
 def item_details():
     try:
         # Get parameters from the request
@@ -66,6 +66,7 @@ def item_details():
     except:
         return jsonify({'error': 'No result found'})
 
+@app.route('/api/products/compare', methods=['POST'])
 def item_comparison():
     try:
         # Get parameters from the request
@@ -88,6 +89,10 @@ def item_comparison():
 
 # Main function to test the API
 if __name__ == '__main__':
+    #GET /api/items/search?query=laptop&sort=price&order=asc&limit=10
+    #GET /api/products/1
+    #{  "productIds": [1, 2, 3]}
+
     with app.test_request_context(query_string={
         'keyword': 'iPhone',
         'min_price': 0,
