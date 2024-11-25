@@ -12,10 +12,10 @@ import firebase_admin
 from firebase_admin import credentials, firestore,storage
 
 # 初始化 Firebase
-cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-8e6643de9f.json")
+cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-c86686395c.json")
 
 firebase_admin.initialize_app(cred, {
-    'storageBucket': 'cs673comparecart.firebasestorage.app'  # 替换为你的 Firebase Storage Bucket 名称
+    'storageBucket': 'cs673comparecart.firebasestorage.app'
 })
 db = firestore.client()
 bucket = storage.bucket()
