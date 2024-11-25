@@ -76,9 +76,9 @@ def getHTML(url):
                 comment_num = comment_num[:-7]
             except:
                 comment_num = 0
-            dic = {'star': star, 'commentNum': comment_num, 'price': price, 'title': title,
+            dic = {'star': star, 'comment_num': comment_num, 'price': price, 'title': title,
                    'detail_url': detail_url,
-                   'img_url': img_url, 'store': store_name, 'img_reference': img_blob_url}
+                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url}
             try:
                 doc_to_add = db.collection("Items").document(title.replace("/", ""))
                 doc_to_add.set(dic)
@@ -135,9 +135,9 @@ def getHTML(url):
                 comment_num = float(comment_num)
             except:
                 comment_num = 0
-            dic = {'star': star, 'commentNum': comment_num, 'price': price, 'title': title,
+            dic = {'star': star, 'comment_num': comment_num, 'price': price, 'title': title,
                    'detail_url': detail_url,
-                   'img_url': img_url, 'store': store_name, 'img_reference': img_blob_url}
+                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url}
             try:
                 doc_to_add = db.collection("Items").document(title.replace("/", ""))
                 doc_to_add.set(dic)
@@ -189,9 +189,9 @@ def getHTML(url):
                 comment_num = float(comment_num)
             except:
                 comment_num = 0
-            dic = {'star': star, 'commentNum': comment_num, 'price': price, 'title': title,
+            dic = {'star': star, 'comment_num': comment_num, 'price': price, 'title': title,
                    'detail_url': detail_url,
-                   'img_url': img_url, 'store': store_name, 'img_reference': img_blob_url}
+                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url}
             try:
                 doc_to_add = db.collection("Items").document(title.replace("/", ""))
                 doc_to_add.set(dic)
