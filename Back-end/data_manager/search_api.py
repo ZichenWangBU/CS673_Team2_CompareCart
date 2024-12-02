@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1 import FieldFilter
 
 app = Flask(__name__)
+CORS(app)
 
 cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-c86686395c.json")  # 替换为你的服务账号 JSON 文件路径
 firebase_admin.initialize_app(cred)
@@ -32,6 +34,7 @@ def search_items():
             .where(filter=FieldFilter('star', '>=', min_stars))
             .where(filter=FieldFilter('star', '<=', max_stars))
             .limit(lim)
+            .select('keyword')
         )
         # Apply order by
         if direction.lower() == 'desc':
