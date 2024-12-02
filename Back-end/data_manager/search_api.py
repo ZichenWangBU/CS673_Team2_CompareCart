@@ -34,7 +34,6 @@ def search_items():
             .where(filter=FieldFilter('star', '>=', min_stars))
             .where(filter=FieldFilter('star', '<=', max_stars))
             .limit(lim)
-            .select('keyword')
         )
         # Apply order by
         if direction.lower() == 'desc':
