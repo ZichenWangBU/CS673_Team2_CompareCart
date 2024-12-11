@@ -1,6 +1,6 @@
 Data management:
 
-data_collector.py is a tweacked version of real-time search for gathering data.
+data_collector.py is a tweaked version of real-time search for gathering data. It collects data according to the taxonomy.
 
 db_maintainance is for managing data after they have been collected, especially for generating keywords for search api.
 
