@@ -40,7 +40,7 @@ def get_leaf_nodes(node):
     return leaf_nodes
 
 
-file_path = "taxonomy.en-US" 
+file_path = "taxonomy.en-US.txt" 
 output_path = "taxonomy.json" 
 
 
