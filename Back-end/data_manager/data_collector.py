@@ -1,6 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import json
 from io import BytesIO
 import os
 import re
@@ -12,7 +11,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore,storage
 
 # 初始化 Firebase
-cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-c86686395c.json")
+cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-8e6643de9f.json")
 
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'cs673comparecart.firebasestorage.app'
@@ -22,7 +21,7 @@ bucket = storage.bucket()
 
 currentDir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-def getHTML(url):
+def getHTML(url,keyword):
     currentDir = r'D:\pythonProject\SPIDER\seleniumSpider'
     chromeDir = os.path.join(currentDir, 'Chrome')
     userDataPath = os.path.join(chromeDir, 'AutomationProfile')
@@ -34,11 +33,11 @@ def getHTML(url):
     page.wait.doc_loaded()
     page.scroll.to_bottom()
     rstr = r"[\/\\\:\*\?\"\<\>\|]"  # '/ \ : * ? " < > |'
+    category=keyword
     if 'amazon' in url:
         store_name='Amazon'
         divs = page.eles('xpath://div[@data-component-type="s-search-result"]')
         amazon_dir = os.path.join(currentDir, 'amazon')
-        print('amazon', amazon_dir)
         if not os.path.exists(amazon_dir):
             os.mkdir(amazon_dir)
         for d in divs:
@@ -70,7 +69,6 @@ def getHTML(url):
                 price = float(price.replace('$', ''))
             except:
                 price = 0
-
             try:
                 comment_num = d.ele('xpath:.//span[contains(@aria-label,"ratings")]').attr('aria-label')
                 comment_num = comment_num[:-7]
@@ -78,7 +76,7 @@ def getHTML(url):
                 comment_num = 0
             dic = {'star': star, 'comment_num': comment_num, 'price': price, 'title': title,
                    'detail_url': detail_url,
-                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url}
+                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url,'category':category}
             try:
                 doc_to_add = db.collection("Items").document(title.replace("/", ""))
                 doc_to_add.set(dic)
@@ -89,17 +87,20 @@ def getHTML(url):
     elif 'bestbuy' in url:
         store_name='Bestbuy'
         sleep(2)
-        page.ele("xpath://button/span[text()='Show more']").click(by_js=True)
-        sleep(2)
-        page.scroll.to_top()
-        sleep(2)
-        divs = page.eles('xpath://div[contains(@class, "productsRow")]/div')
-        bestbuy_dir = os.path.join(currentDir, 'bestbuy')
-        if not os.path.exists(bestbuy_dir):
-            os.mkdir(bestbuy_dir)
+        try:
+            page.ele("xpath://button/span[text()='Show more']").click(by_js=True)
+            sleep(2)
+            page.scroll.to_top()
+            sleep(2)
+            divs = page.eles('xpath://div[contains(@class, "productsRow")]/div')
+        except:
+            divs=[]
         for d in range(len(divs)):
-            page.actions.move_to(ele_or_loc=divs[d])
-            sleep(1)
+            try:
+                page.actions.move_to(ele_or_loc=divs[d])
+                sleep(1)
+            except:
+                continue
             try:
                 title = divs[d].ele('xpath:.//div[@itemprop="name"]').text
             except:
@@ -137,7 +138,7 @@ def getHTML(url):
                 comment_num = 0
             dic = {'star': star, 'comment_num': comment_num, 'price': price, 'title': title,
                    'detail_url': detail_url,
-                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url}
+                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url,'category':category}
             try:
                 doc_to_add = db.collection("Items").document(title.replace("/", ""))
                 doc_to_add.set(dic)
@@ -191,7 +192,7 @@ def getHTML(url):
                 comment_num = 0
             dic = {'star': star, 'comment_num': comment_num, 'price': price, 'title': title,
                    'detail_url': detail_url,
-                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url}
+                   'img_url': img_url, 'store': store_name, 'img_ref': img_blob_url,'category':category}
             try:
                 doc_to_add = db.collection("Items").document(title.replace("/", ""))
                 doc_to_add.set(dic)
@@ -207,13 +208,27 @@ def my_requests(img_url):
     return img_res
 
 def collect_data(keyword):
-    return {'amazon': getHTML('https://www.amazon.com/-/zh/s?k=%s&page=2&qid=1727679681&ref=sr_pg_2' % keyword),
-            'alibaba': getHTML('https://www.alibaba.com/trade/search?SearchText=%s' % keyword),
-            'bestbuy': getHTML('https://www.bestbuy.ca/en-ca/search?search=%s' % keyword)}
+    return {'amazon': getHTML('https://www.amazon.com/-/zh/s?k=%s&page=2&qid=1727679681&ref=sr_pg_2' % keyword,keyword),
+            'alibaba': getHTML('https://www.alibaba.com/trade/search?SearchText=%s' % keyword,keyword),
+            'bestbuy': getHTML('https://www.bestbuy.ca/en-ca/search?search=%s' % keyword,keyword)}
+
+
+def find_leaf_nodes(data):
+    leaf_nodes = []
+    stack = [data]
+    while stack:
+        current = stack.pop()
+        for key, value in current.items():
+            if isinstance(value, dict):
+                if not value:
+                    leaf_nodes.append(key)
+                else:
+                    stack.append(value)
+    return leaf_nodes
 
 if __name__ == '__main__':
-    collect_data('phone')
-    collect_data('tablet')
-    collect_data('laptop')
-    collect_data('bottle')
-    collect_data('floor+lamp')
+    with open("taxonomy.json",'r',encoding="utf-8") as file:
+        data=json.load(file)
+    names=find_leaf_nodes(data["Electronics"])
+    for name in names:
+        collect_data(name)
