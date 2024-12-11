@@ -1,107 +1,75 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.cloud.firestore_v1 import FieldFilter
+import random
+import string
+import re
 
-app = Flask(__name__)
-CORS(app)
+cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-8e6643de9f.json")
 
-cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-c86686395c.json")  # 替换为你的服务账号 JSON 文件路径
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+def add_word_to_documents(collection_ref,field_name,value):
+    docs = collection_ref.stream()
+    for doc in docs:
+        collection_ref.document(doc.id).update({
+            field_name:value
+        })
 
-# API Endpoint to query Firestore dynamically
-@app.route('/api/items/search', methods=['GET'])
-def search_items():
-    try:
-        # Get parameters from the request
-        keyword = request.args.get('keyword', default='', type=str).lower()
-        min_price = request.args.get('min_price', default=0, type=float)
-        max_price = request.args.get('max_price', default=float('inf'), type=float)
-        min_stars = request.args.get('min_stars', default=0, type=int)
-        max_stars = request.args.get('max_stars', default=100, type=int)
-        order_by = request.args.get('order_by', default='price', type=str)
-        direction = request.args.get('direction', default='desc', type=str)
-        lim=request.args.get('limit', default=10, type=int)
-        # Query Firestore
-        items_ref = db.collection('Items')
-        query = (
-            items_ref
-            .where(filter=FieldFilter('keywords', 'array_contains', keyword))
-            .where(filter=FieldFilter('price', '>=', min_price))
-            .where(filter=FieldFilter('price', '<=', max_price))
-            .where(filter=FieldFilter('star', '>=', min_stars))
-            .where(filter=FieldFilter('star', '<=', max_stars))
-            .limit(lim)
-        )
-        # Apply order by
-        if direction.lower() == 'desc':
-            query = query.order_by(order_by, direction=firestore.Query.DESCENDING)
-        else:
-            query = query.order_by(order_by, direction=firestore.Query.ASCENDING)
-        docs = query.stream()
-        results = [{'id': doc.id, **doc.to_dict()} for doc in docs]
-        return jsonify(results), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+def rename_field(collection_ref,old_name,new_name):
+    docs=collection_ref.stream()
+    for doc in docs:
+        doc_data=doc.to_dict()
+        if old_name in doc_data:
+            field_value=doc_data[old_name]
+            collection_ref.document(doc.id).update({old_name:field_value})
+            print(f"creating {new_name} in document {doc.id}")
+            collection_ref.document(doc.id).update({new_name:firestore.DELETE_FIELD})
+            print(f"deleted {old_name} in document {doc.id}")
 
-@app.route('/api/products/{productId}', methods=['GET'])
-def item_details():
-    try:
-        # Get parameters from the request
-        keyword = request.args.get('keyword', default='', type=str)
-        items_ref = db.collection('Items')
-        query = (
-            items_ref
-            .where("title", "==", keyword)
-            .select(('title','store','price','star','img_reference','commentNum','detail_url'))
-        )
-        # Apply order by
-        docs = query.stream()
-        results = [{'id': doc.id, **doc.to_dict()} for doc in docs]
-        return jsonify(results), 200
-    except:
-        return jsonify({'error': 'No result found'})
+def generate_keywords(title):
+    if not title:
+        return []
+    words = re.split(r'[,\.\s]+', str(title).lower())
+    return list(set(filter(None, words)))
 
-@app.route('/api/products/compare', methods=['POST'])
-def item_comparison():
-    try:
-        # Get parameters from the request
-        keywords = request.args.get('keywords', default='', type=str)
-        items_ref = db.collection('Items')
-        results=[]
-        for keyword in keywords:
-            query = (
-            items_ref
-            .where("title", "==", keyword)
-            .select(('title','store','price','star','img_reference','commentNum',))
-            )
-            doc=query.stream().to_dict()
-            results.append(doc)
+def update_documents_with_keywords(collection_ref):
+    batch_size = 500  # Firebase requests have time limit. must use batch
+    last_doc = None
 
-        return jsonify(results), 200
-    except:
-        return jsonify({'error': 'No result found'})
+    while True:
+        query = coll_ref.order_by("__name__").limit(batch_size)
+        if last_doc:
+            query = query.start_after(last_doc)
 
+        documents = list(query.stream())
 
-# Main function to test the API
-if __name__ == '__main__':
-    '''
-    with app.test_request_context(query_string={
-        'keyword': 'iphone',
-        'min_price': 0,
-        'max_price': 100000,
-        'min_stars': 0,
-        'max_stars': 10000,
-        'order_by': 'price',
-        'direction': 'desc',
-        'lim':100
-    }):
-        # Simulate a request to the API
-        response = search_items()
+        if not documents:
+            break
 
-        # Extract JSON from the response tuple
-        json_response = response[0].get_json() if isinstance(response, tuple) else response.get_json()
-        print(json_response)  '''
-    app.run(debug=True)
+        for doc in documents:
+            doc_data = doc.to_dict()
+            title = doc_data.get("title", "")
+            keywords = generate_keywords(title)  # Generate keywords
+            # Update the document with the new 'keywords' field
+            collection_ref.document(doc.id).update({"keywords": keywords})
+            print(f"Updated document {doc.id} with keywords: {keywords}")
+
+        last_doc = documents[-1]
+
+def generate_random_str(length=10):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+def generate_random_doc(collection_ref, num_docs):
+    for i in range(num_docs):
+        doc_data = {
+            "field1": generate_random_str(8),
+            "field2": generate_random_str(12),
+            "field3": generate_random_str(16)
+        }
+        doc_ref = collection_ref.document()  # Auto-generate document ID
+        doc_ref.set(doc_data)
+        print(f"Added document {i + 1}: {doc_data}")
+
+if __name__ == "__main__":
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+    coll_ref=db.collection("Items")
+    update_documents_with_keywords(coll_ref)
