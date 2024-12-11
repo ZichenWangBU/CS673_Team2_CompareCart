@@ -12,4 +12,4 @@ categorize.py   is for parsing taxomony.en-US.txt into readable json.
 
 taxonomy.en-US.txt   abd taxonomy.json are the Google product taxonomy.
 
-test/   the directory contains test files by Siming
+test/   the directory contains test files by Siming.
