@@ -4,7 +4,7 @@ import random
 import string
 import re
 
-cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-c86686395c.json")
+cred = credentials.Certificate("cs673comparecart-firebase-adminsdk-8la2o-8e6643de9f.json")
 
 def add_word_to_documents(collection_ref,field_name,value):
     docs = collection_ref.stream()
@@ -31,22 +31,31 @@ def generate_keywords(title):
     return list(set(filter(None, words)))
 
 def update_documents_with_keywords(collection_ref):
-    documents = collection_ref.stream()
+    batch_size = 500  # Firebase requests have time limit. must use batch
+    last_doc = None
 
-    for doc in documents:
-        doc_data = doc.to_dict()
-        title = doc_data.get("title", "")
-        keywords = generate_keywords(title)  # Generate keywords
+    while True:
+        query = coll_ref.order_by("__name__").limit(batch_size)
+        if last_doc:
+            query = query.start_after(last_doc)
 
-        # Update the document with the new 'keywords' field
-        collection_ref.document(doc.id).update({"keywords": keywords})
-        print(f"Updated document {doc.id} with keywords: {keywords}")
+        documents = list(query.stream())
 
+        if not documents:
+            break
 
+        for doc in documents:
+            doc_data = doc.to_dict()
+            title = doc_data.get("title", "")
+            keywords = generate_keywords(title)  # Generate keywords
+            # Update the document with the new 'keywords' field
+            collection_ref.document(doc.id).update({"keywords": keywords})
+            print(f"Updated document {doc.id} with keywords: {keywords}")
+
+        last_doc = documents[-1]
 
 def generate_random_str(length=10):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-
 
 def generate_random_doc(collection_ref, num_docs):
     for i in range(num_docs):
