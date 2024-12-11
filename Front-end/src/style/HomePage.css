@@ -1,0 +1,168 @@
+/* General Styles */
+.home-page {
+  font-family: Arial, sans-serif;
+}
+
+/* Welcome Section */
+.welcome-section {
+  background-color: #007bff;
+  color: white;
+  padding: 50px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 66vh; /* Covers 2/3rd of the page height */
+  margin-top: 20px; /* Gap between navbar and blue strip */
+  border-radius: 25px; /* Curved edges */
+  width: 90%; /* Reduce width slightly */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  margin-bottom: 0px;
+}
+
+.welcome-section .content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.welcome-section .text-section {
+  max-width: 50%;
+}
+
+.welcome-section h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.welcome-section p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.welcome-section .image-section img {
+  max-width: 100%;
+  border-radius: 15px;
+  width: 800px; /* Increase size of the image */
+  height: auto;
+  margin-left: 100px; /* Center horizontally */
+  margin-right: auto;
+}
+
+/* Search Bar */
+.search-bar {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.search-bar form {
+  display: flex;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
+  background-color: white; /* White background for contrast */
+  border-radius: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+  overflow: hidden;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  border-radius: 25px 0 0 25px; /* Rounded corners on the left */
+}
+
+.search-bar input::placeholder {
+  color: #bbb; /* Subtle placeholder text */
+  font-style: italic;
+}
+
+.search-bar button {
+  padding: 12px 20px;
+  font-size: 1rem;
+  background-color: #ff9900 !important; /* Change to orange */
+  color: white;
+  border: none;
+  border-radius: 0 25px 25px 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #e67e22 !important; /* Darker shade of orange for hover */
+}
+
+/* Section Break */
+.section-break {
+  height: 50px;
+  background-color: #f9f9f9;
+}
+
+/* Why Choose Us Section */
+.why-choose-us {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #e6f4ff; /* Light blue background */
+  border-radius: 25px; /* Curved edges for consistency */
+  margin-top: 0px;
+  width: 90%;
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+}
+
+.why-choose-us h2 {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #007bff; /* Darker blue for heading text */
+}
+
+.reasons {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.reason-box {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  padding: 20px;
+  flex: 1;
+  max-width: 23%;
+}
+
+.reason-box .icon {
+  width: 80px;
+  height: 80px;
+  background-color: #007bff;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reason-box .icon img {
+  width: 50%;
+  height: auto;
+}
+
+.reason-box h4 {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #333; /* Darker color for text */
+}
+
+
+
