@@ -1,6 +1,6 @@
 Data management:
 
-The program requires a private key of Firebase to run.
+The program requires a private key of Firebase to run( which we cannot share to public).
 
 data_collector.py   is a tweaked version of real-time search for gathering data. It collects data according to the taxonomy.
 
