@@ -11,3 +11,5 @@ search_api.py   contains 3 apis: the search api, the product detail api, the com
 categorize.py   is for parsing taxomony.en-US.txt into readable json.
 
 taxonomy.en-US.txt   abd taxonomy.json are the Google product taxonomy.
+
+test/   the directory contains test files by Siming
